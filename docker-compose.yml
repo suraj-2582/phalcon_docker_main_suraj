@@ -1,0 +1,48 @@
+version: "3"
+services:
+  nginx:
+    image: nginx:mainline
+    container_name: nginx
+    restart: always
+    env_file: docker/nginx/env/nginx.env
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./log/nginx/:/var/log/nginx/
+      - ./app/home:/app/home
+    ports: 
+      - "80:80"
+  mongo:
+    #container_name: mongo
+    image: mongo:5.0
+    #image: mongo:6.0.12
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: cedcommerce
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+      - ./backup:/app/backup
+    
+  redis:
+    image: redis:7.0.8
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+  phalcon:
+    build: ./docker/phalcon
+          #  image: 149495593614.dkr.ecr.ap-south-1.amazonaws.com/official-jenkins-pipeline:latest
+    container_name: phalcon
+    restart: always
+    volumes:
+      - ./app/remote:/app/remote
+      - ./app/home:/app/home
+      - ./docker/phalcon/tmp:/app/tmp
+    ports:
+      - "9000:9000"
+volumes:
+  dbdata:
+  mongodata:
